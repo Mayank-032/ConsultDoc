@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"healthcare-service/domain/entity"
 	"healthcare-service/domain/interfaces/controller"
 	"healthcare-service/domain/interfaces/repository"
 	"healthcare-service/domain/interfaces/usecase"
@@ -32,11 +31,24 @@ func (pc PatientController) CreateAppointment(ctx context.Context, data interfac
 		return
 	}
 
-	var patient entity.Patient
-	err = json.Unmarshal(patientDataBytes, &patient)
+	request := CreateAppointmentRequest{}
+	err = json.Unmarshal(patientDataBytes, &request)
+	if err == nil {
+		err = request.Validate()
+	}
 	if err != nil {
-		log.Printf("Error: %v,\n failed_to_unmarshal_patientDataBytes\n\n", err.Error())
+		log.Printf("Error: %v,\n invalid details provided\n\n", err.Error())
 		msg.Ack(false)
 		return
 	}
+
+	patient := request.toPatientDto()
+	doctor := request.toDoctorDto()
+	err = pc.PatientUCase.CreateAppointmentReceipt(ctx, patient, doctor)
+	if err != nil {
+		log.Printf("Error: %v,\n unable to create appointment receipt\n\n", err.Error())
+		msg.Ack(false)
+		return
+	}
+	msg.Ack(true)
 }

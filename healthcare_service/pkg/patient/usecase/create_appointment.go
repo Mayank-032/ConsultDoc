@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"healthcare-service/domain"
 	"healthcare-service/domain/entity"
 	"healthcare-service/domain/interfaces/usecase"
 
@@ -19,6 +18,6 @@ func NewPatientUCase(client *storage.Client) usecase.IPatientUseCase {
 	}
 }
 
-func (puc PatientUCase) CreateAppointmentReceipt(ctx context.Context, patient entity.Patient, doctor entity.Doctor) (string, error) {
-	return domain.EmptyString, nil
+func (puc PatientUCase) CreateAppointmentReceipt(ctx context.Context, patient entity.Patient, doctor entity.Doctor) error {
+	return nil
 }
