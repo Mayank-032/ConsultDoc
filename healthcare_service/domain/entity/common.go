@@ -1,6 +1,6 @@
 package entity
 
-type Slots struct {
+type Slot struct {
 	StartTime string `json:"startTime"`
 	EndTime   string `json:"endTime"`
 }
