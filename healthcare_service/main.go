@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"healthcare-service/db"
 	"healthcare-service/domain"
+	"healthcare-service/rabbitmq"
 	"healthcare-service/routes"
 	"log"
 	"os"
@@ -25,10 +27,21 @@ func main() {
 		return
 	}
 
+	err = rabbitmq.Connect()
+	if err != nil {
+		log.Printf("Error: %v, unable to init rabbitmq", err.Error())
+		return
+	}
+
 	r := gin.Default()
 	routes.InitRoutes(r)
 
-	r.Run(":8000")
+	PORT := os.Getenv("PORT")
+	err = r.Run(fmt.Sprintf(":%v", PORT))
+	if err != nil {
+		log.Printf("Error: %v, unable to run server", err.Error())
+	}
+	log.Printf("Server Running on PORT: %v", PORT)
 }
 
 func getCredentials() domain.DBCred {
