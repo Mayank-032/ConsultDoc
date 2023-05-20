@@ -1,31 +1,31 @@
 package bootstrap
 
 import (
-	"database/sql"
+	DB "healthcare-service/db"
 	"healthcare-service/domain/interfaces/repository"
 	"healthcare-service/domain/interfaces/usecase"
-	_patientRepo "healthcare-service/pkg/patient/repository"
-	_patientUCase "healthcare-service/pkg/patient/usecase"
-	_patientRoutes "healthcare-service/pkg/patient/routes"
+	_patientRepo "healthcare-service/pkg/common/repository"
+	_patientRoutes "healthcare-service/pkg/common/routes"
+	_patientUCase "healthcare-service/pkg/common/usecase"
 
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	patientRepo repository.IPatientRepository
-	patientUCase usecase.IPatientUseCase
+	commonRepo  repository.ICommonRepository
+	commonUCase usecase.ICommonUseCase
 )
 
 func initRepos() {
-	patientRepo = _patientRepo.NewPatientRepo(&sql.DB{})
+	commonRepo = _patientRepo.NewCommonRepo(DB.Client)
 }
 
 func initUCases() {
-	patientUCase = _patientUCase.NewPatientUsecase(patientRepo)
+	commonUCase = _patientUCase.NewCommonUCase(commonRepo)
 }
 
 func initAPIs(apiGroup *gin.RouterGroup) {
-	_patientRoutes.Init(apiGroup, patientUCase)
+	_patientRoutes.Init(apiGroup, commonUCase)
 }
 
 func Init(apiGroup *gin.RouterGroup) {

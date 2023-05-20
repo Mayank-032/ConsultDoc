@@ -1,7 +1,7 @@
 package entity
 
 type Patient struct {
-	Name    string `json:"name"`
-	Phone   int    `json:"phone"`
-	Address string `json:"address"`
+	Name    string  `json:"name"`
+	Phone   string  `json:"phone"`
+	Address Address `json:"address"`
 }
