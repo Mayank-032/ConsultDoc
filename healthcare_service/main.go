@@ -27,6 +27,9 @@ func main() {
 		return
 	}
 
+	credsFilePath := os.Getenv("CloudCredentialFilePath")
+	db.ConnectCloud(credsFilePath)
+
 	err = rabbitmq.Connect()
 	if err != nil {
 		log.Printf("Error: %v, unable to init rabbitmq", err.Error())
