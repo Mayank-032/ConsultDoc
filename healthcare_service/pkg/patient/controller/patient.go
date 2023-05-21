@@ -25,7 +25,7 @@ func NewPatientController(conn *amqp.Connection, patientUCase usecase.IPatientUs
 	}
 }
 
-func (pc PatientController) CreateAppointment(ctx context.Context, data interface{}, msg amqp.Delivery) {
+func (pc PatientController) ProcessCreateAppointmentRequest(ctx context.Context, data interface{}, msg amqp.Delivery) {
 	patientDataBytes, err := json.Marshal(data)
 	if err != nil {
 		log.Printf("Error: %v,\n failed_to_marshal_request_body\n\n", err.Error())

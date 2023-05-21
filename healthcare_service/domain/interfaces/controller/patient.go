@@ -7,5 +7,5 @@ import (
 )
 
 type IPatientController interface {
-	CreateAppointment(ctx context.Context, data interface{}, msg amqp.Delivery)
+	ProcessCreateAppointmentRequest(ctx context.Context, data interface{}, msg amqp.Delivery)
 }

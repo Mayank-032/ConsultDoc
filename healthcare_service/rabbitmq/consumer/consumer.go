@@ -16,6 +16,7 @@ import (
 
 type ConsumerLayer struct {
 	PatientController controller.IPatientController
+	DoctorController controller.IDoctorController
 }
 
 func NewConsumerLayer(patientController controller.IPatientController) interfaces.IConsumer {
@@ -26,6 +27,12 @@ func NewConsumerLayer(patientController controller.IPatientController) interface
 
 func (cl ConsumerLayer) StartConsumers() {
 	consumers := []entity.Consumer{
+		{
+			QueueName:    "store_product_images",
+			ExchangeName: "store_product",
+			ExchangeType: "direct",
+			RoutingKey:   "store_product_images",
+		},
 		{
 			QueueName:    "store_product_images",
 			ExchangeName: "store_product",
@@ -126,7 +133,9 @@ func (cl ConsumerLayer) ConsumeMessage(queueName string, msg amqp.Delivery, cons
 
 	switch queueName {
 	case "create_appointment":
-		go cl.PatientController.CreateAppointment(ctx, consumedData.Data, msg)
+		go cl.PatientController.ProcessCreateAppointmentRequest(ctx, consumedData.Data, msg)
+	case "healthcare_service_appointment_link":
+		go cl.DoctorController.ProcessSendAppointmentLinkRequest(ctx, consumedData.Data, msg)
 	default:
 		return
 	}
