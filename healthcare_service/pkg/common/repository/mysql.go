@@ -28,7 +28,7 @@ func (cr CommonRepo) GetDoctorsList(ctx context.Context, address entity.Address)
 	}
 	defer conn.Close()
 
-	sqlQuery := "SELECT id, name, phone, ST_X(location), ST_Y(location), appointment_fees, FROM doctors WHERE ST_Distance_Sphere(location, POINT(?, ?)) <= 10000 and status = ?"
+	sqlQuery := "SELECT id, name, phone, ST_X(location), ST_Y(location), appointment_fees FROM doctors WHERE ST_Distance_Sphere(location, POINT(?, ?)) <= 10000 and status = ?"
 	args := []interface{}{address.Latitude, address.Longitude, domain.StatusActive}
 	rows, err := cr.DB.QueryContext(ctx, sqlQuery, args...)
 	if err != nil {

@@ -13,6 +13,7 @@ import (
 )
 
 type CreateAppointmentRequest struct {
+	DoctorId        int      `json:"doctorId"`
 	PatientName     string   `json:"patientName"`
 	PatientPhone    string   `json:"patientPhone"`
 	PatientAddress  []string `json:"patientAddress"`
@@ -21,6 +22,11 @@ type CreateAppointmentRequest struct {
 	DoctorAddress   []string `json:"doctorAddress"`
 	AppointmentSlot []string `json:"appointmentSlot"`
 	Fees            int      `json:"fees"`
+}
+
+type AppointmentData struct {
+	DoctorId        int `json:"doctorId"`
+	AppointmentLink string `json:"appointmentLink"`
 }
 
 func (req CreateAppointmentRequest) Validate() error {
@@ -65,6 +71,7 @@ func (req CreateAppointmentRequest) toDoctorDto() entity.Doctor {
 	slots = append(slots, slot)
 
 	return entity.Doctor{
+		Id:      req.DoctorId,
 		Name:    req.DoctorName,
 		Phone:   req.DoctorPhone,
 		Address: address,
@@ -73,7 +80,7 @@ func (req CreateAppointmentRequest) toDoctorDto() entity.Doctor {
 	}
 }
 
-func publishAppointmentLinkToQueue(ctx context.Context, conn *amqp.Connection, appointmentLink string) error {
+func publishAppointmentLinkToQueue(ctx context.Context, conn *amqp.Connection, appointmentLink string, doctorId int) error {
 	defer conn.Close()
 	if conn.IsClosed() {
 		log.Printf("Closed Connect")
@@ -93,7 +100,11 @@ func publishAppointmentLinkToQueue(ctx context.Context, conn *amqp.Connection, a
 	defer amqpChannel.Close()
 
 	publishData := publisher.PublishTaskRequestData{}
-	publishData.Data = appointmentLink
+	appointmentData := AppointmentData {
+		DoctorId: doctorId,
+		AppointmentLink: appointmentLink,
+	}
+	publishData.Data = appointmentData
 	reqBytes, err := json.Marshal(publishData)
 	if err != nil {
 		log.Printf("Error: %v,\n invalid_json_format", err.Error())

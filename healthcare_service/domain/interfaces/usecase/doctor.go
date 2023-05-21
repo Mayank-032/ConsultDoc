@@ -5,5 +5,5 @@ import (
 )
 
 type IDoctorUseCase interface {
-	SendAppointmentLink(ctx context.Context, appointmentLink string) error
+	SendAppointmentLink(ctx context.Context, doctorId int, appointmentLink string) error
 }

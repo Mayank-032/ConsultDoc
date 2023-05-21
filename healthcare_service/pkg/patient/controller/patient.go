@@ -53,7 +53,7 @@ func (pc PatientController) ProcessCreateAppointmentRequest(ctx context.Context,
 		return
 	}
 
-	err = publishAppointmentLinkToQueue(ctx, pc.Conn, appointmentLink)
+	err = publishAppointmentLinkToQueue(ctx, pc.Conn, appointmentLink, doctor.Id)
 	if err != nil {
 		log.Printf("Error: %v,\n unable to publish appointment link to queue\n\n", err.Error())
 		msg.Ack(false)
@@ -67,5 +67,6 @@ func (pc PatientController) ProcessCreateAppointmentRequest(ctx context.Context,
 		msg.Ack(false)
 		return
 	}
+	log.Printf("successfully saved patient details and processed request\n\n")
 	msg.Ack(true)
 }
