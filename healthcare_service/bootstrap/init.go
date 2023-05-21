@@ -9,9 +9,10 @@ import (
 	_commonRepo "healthcare-service/pkg/common/repository"
 	_commonRoutes "healthcare-service/pkg/common/routes"
 	_commonUCase "healthcare-service/pkg/common/usecase"
-	_patientUCase "healthcare-service/pkg/patient/usecase"
 	_patientController "healthcare-service/pkg/patient/controller"
 	_patientRepo "healthcare-service/pkg/patient/repository"
+	_patientUCase "healthcare-service/pkg/patient/usecase"
+	"healthcare-service/rabbitmq"
 	_consumer "healthcare-service/rabbitmq/consumer"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +38,7 @@ func initUCases() {
 }
 
 func initControllers() {
-	patientController = _patientController.NewPatientController(patientUCase, patientRepo)
+	patientController = _patientController.NewPatientController(rabbitmq.Conn, patientUCase, patientRepo)
 }
 
 func initAPIs(apiGroup *gin.RouterGroup) {

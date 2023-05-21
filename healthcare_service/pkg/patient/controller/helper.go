@@ -1,8 +1,15 @@
 package controller
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"healthcare-service/domain/entity"
+	"healthcare-service/rabbitmq"
+	"healthcare-service/rabbitmq/publisher"
+	"log"
+
+	"github.com/streadway/amqp"
 )
 
 type CreateAppointmentRequest struct {
@@ -64,4 +71,44 @@ func (req CreateAppointmentRequest) toDoctorDto() entity.Doctor {
 		Fees:    req.Fees,
 		Slots:   slots,
 	}
+}
+
+func publishAppointmentLinkToQueue(ctx context.Context, conn *amqp.Connection, appointmentLink string) error {
+	defer conn.Close()
+	if conn.IsClosed() {
+		log.Printf("Closed Connect")
+
+		err := rabbitmq.Connect()
+		if err != nil {
+			log.Printf("Error: %v, unable to init rabbitmq", err.Error())
+			return errors.New("unable to init rabbitmq conn")
+		}
+		conn = rabbitmq.Conn
+	}
+	amqpChannel, err := conn.Channel()
+	if err != nil {
+		log.Printf("Error: %v,\n failed_to_create_channel", err.Error())
+		return errors.New("unable to create channel")
+	}
+	defer amqpChannel.Close()
+
+	publishData := publisher.PublishTaskRequestData{}
+	publishData.Data = appointmentLink
+	reqBytes, err := json.Marshal(publishData)
+	if err != nil {
+		log.Printf("Error: %v,\n invalid_json_format", err.Error())
+		return errors.New("invalid json format")
+	}
+
+	publishRequest := publisher.PublishTaskRequest{}
+	publishRequest.QueueName = "healthcare_service_appointment_link"
+	publishRequest.ExchangeName = "healthcare_service"
+	publishRequest.RoutingKey = "healthcare_service_appointment_link"
+	publishRequest.ReqBytes = reqBytes
+	err = publishRequest.PublishMessage(ctx, amqpChannel)
+	if err != nil {
+		log.Printf("Error: %v,\n failed_to_publish_message\n\n", err.Error())
+		return errors.New("unable to publish message")
+	}
+	return nil
 }
