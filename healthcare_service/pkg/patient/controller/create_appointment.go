@@ -44,9 +44,17 @@ func (pc PatientController) CreateAppointment(ctx context.Context, data interfac
 
 	patient := request.toPatientDto()
 	doctor := request.toDoctorDto()
-	err = pc.PatientUCase.CreateAppointmentReceipt(ctx, patient, doctor)
+	receiptLink, err := pc.PatientUCase.CreateAppointmentReceipt(ctx, patient, doctor)
 	if err != nil {
 		log.Printf("Error: %v,\n unable to create appointment receipt\n\n", err.Error())
+		msg.Ack(false)
+		return
+	}
+	
+	patient.AppointmentLink = receiptLink
+	err = pc.PatientRepo.SavePatientDetails(ctx, patient)
+	if err != nil {
+		log.Printf("Error: %v,\n unable to save patient details\n\n", err.Error())
 		msg.Ack(false)
 		return
 	}

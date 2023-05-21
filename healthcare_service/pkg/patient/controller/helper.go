@@ -23,7 +23,7 @@ func (req CreateAppointmentRequest) Validate() error {
 	if len(req.DoctorPhone) != 0 || len(req.PatientPhone) == 0 {
 		return errors.New("invalid doctor or patient phone number")
 	}
-	if len(req.DoctorAddress) != 2 || (len(req.PatientAddress) != 0 && len(req.PatientAddress) != 2) {
+	if len(req.DoctorAddress) != 2 || len(req.PatientAddress) != 2 {
 		return errors.New("invalid doctor's address or patient's address")
 	}
 	if len(req.AppointmentSlot) != 2 {

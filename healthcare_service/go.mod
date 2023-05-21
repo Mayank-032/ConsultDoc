@@ -6,6 +6,7 @@ require github.com/gin-gonic/gin v1.9.0
 
 require (
 	cloud.google.com/go/storage v1.30.1
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/streadway/amqp v1.0.0
 	google.golang.org/api v0.123.0
 )
